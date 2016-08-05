@@ -2,6 +2,7 @@
 
 - hosts: all
   become: yes
+  tags: APT
   tasks:
   - name: needed for apt
     shell: apt-get install python-apt
@@ -55,6 +56,7 @@
 
 
 - hosts: all
+  name: Doing the Apache and module stuff
   become: yes
   roles:
   - role: apache-fcgi
