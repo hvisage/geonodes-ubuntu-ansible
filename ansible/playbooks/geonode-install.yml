@@ -79,6 +79,7 @@
       dest=/opt/qgis-server/plugins/otf-project
       repo=https://github.com/kartoza/otf-project.git
       version=0a44fa4ccc40a5645af7d4349c63b9bb2f995595
+#Here we need to still do some configs to test, or do we?
 
 
 # <add-experssions-of-choice>
@@ -113,3 +114,38 @@
   # - name: restart postgresql
   #   services:
   #
+
+
+
+- hosts: all
+  name: geonode gits
+  tags: geonode-git
+  become: yes
+  tasks:
+  - name: directories
+    file: path=/home/data state=directory recurse=yes
+
+  - name: git pull geonode
+    git:
+      clone=yes
+      dest=/home/data/geonode
+      repo=https://github.com/kartoza/geonode.git
+      version=qgis_server
+
+#HEre we still need to do some virtualenv stuff...
+
+- hosts: all
+  name: geonode virtualenv
+  tags: virtualenv
+  become: yes
+  tasks:
+  - name: create virtualev setup
+    pip:
+      name=pip version=8.1.1
+      chdir=/home/data
+      virtualenv=/home/data/venv
+      virtualenv_site_packages=yes
+      state=present
+
+#Don't have any idea yet to run the rest in that environment,
+# other than to create a script to do it, and push that up
