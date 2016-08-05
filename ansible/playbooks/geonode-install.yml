@@ -58,3 +58,23 @@
   become: yes
   roles:
   - role: apache-fcgi
+# <add-experssions-of-choice>
+# https://docs.ansible.com/ansible/become.html#becoming-an-unprivileged-user
+# the following will only work with pipelining as per ansible.cfg
+- hosts: all
+  name: postgresql users etc.
+  tags: postgres
+  become: yes
+  become_user: postgres
+  tasks:
+  - name: shell
+    shell: id -a
+  - name: create geonode users
+    postgresql_user:
+      name=geonode
+      password="geonode"
+      state=present
+  - name: create geonode database
+    postgresql_db: name=geonode
+      state=present
+      owner=geonode
