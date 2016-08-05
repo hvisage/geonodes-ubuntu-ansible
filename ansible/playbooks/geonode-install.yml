@@ -6,15 +6,15 @@
   - name: needed for apt
     shell: apt-get install python-apt
 
-  - name: apt keys to work below
+  - name: apt keys for postgresql apt repo
     apt_key: url={{item}} state=present
     with_items:
       - https://www.postgresql.org/media/keys/ACCC4CF8.asc
 
-  - name: apt keys ids
+  - name: apt keys id for QGIS apt repo
     apt_key: id=3FF5FFCAD71472C4 keyserver=keyserver.ubuntu.com state=present
 
-  - name: repositories
+  - name: The APT repositories
     apt_repository: repo={{item}} state=present update_cache=yes
     with_items:
       - 'ppa:nginx/stable'
