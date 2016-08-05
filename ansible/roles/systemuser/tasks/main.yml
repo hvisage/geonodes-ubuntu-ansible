@@ -1,0 +1,26 @@
+---
+
+
+- name: create system user
+  user: name={{ user }} groups={{ user_groups|join(',') }} createhome=yes
+        update_password=on_create shell={{ shell }}
+        state=present
+
+
+
+# Uncomment these lines to debug when you have failures on the  lookup file.
+
+# - name: check debug cwd
+#   become: false
+#   local_action: shell pwd
+#
+# - name: Environment
+#   become: false
+#   local_action: shell env
+#
+# - name: ls files
+#   become: false
+#   local_action: shell ls . files/pub_keys/ ../files/pub_keys/*pub || true
+
+- name: enable ssh pubkey login
+  authorized_key: user={{ user }} manage_dir=yes state=present key="{{ lookup('file', '../files/pub_keys/'+ user +'.pub') }}"

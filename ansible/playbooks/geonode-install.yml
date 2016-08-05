@@ -1,0 +1,53 @@
+---
+
+- hosts: all
+  become: yes
+  tasks:
+  - name: needed for apt
+    shell: apt-get install python-apt
+
+  - name: apt keys to work below
+    apt_key: url={{item}} state=present
+    with_items:
+      - https://www.postgresql.org/media/keys/ACCC4CF8.asc
+
+  - name: apt keys ids
+    apt_key: id=3FF5FFCAD71472C4 keyserver=keyserver.ubuntu.com state=present
+
+  - name: repositories
+    apt_repository: repo={{item}} state=present update_cache=yes
+    with_items:
+      - 'ppa:nginx/stable'
+      - 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main'
+      - 'deb http://qgis.org/debian xenial main'
+
+  - name: packages to install
+    apt: name={{item}} state=present update_cache=yes
+    with_items:
+      - git
+      - python-pip
+      - python-virtualenv
+      - apache2
+      - libapache2-mod-wsgi
+      - qgis-server
+      - python-qgis
+      - postgresql-9.5
+      - postgresql-contrib-9.5
+#      - postgresql-9.5-postgis
+#      - postgresql-9.5-postgis-scripts
+      - gcc
+      - gdal-bin
+      - gettext
+      - libgeos-dev
+      - libjpeg-dev
+      - libpng-dev
+      - libpq-dev
+      - libproj-dev
+      - libxml2-dev
+      - libxslt-dev
+      - python-dev
+      - python-gdal
+      - python-imaging
+      - python-pastescript
+      - python-psycopg2
+      - python-urlgrabber
