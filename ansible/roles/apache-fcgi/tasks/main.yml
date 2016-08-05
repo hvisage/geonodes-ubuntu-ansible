@@ -1,0 +1,11 @@
+---
+
+- name: Apache fcgid module
+  apache2_module: state=present name=fcgid
+  notify: apache-restart
+
+- name: serve-cgi-bin
+  command:
+    a2enconf serve-cgi-bin
+    creates=/etc/apache2/conf-enabled/serve-cgi-bin
+  notify: apache-restart
