@@ -60,6 +60,27 @@
   become: yes
   roles:
   - role: apache-fcgi
+
+
+
+- hosts: all
+  name: OTF plugins
+  become: yes
+  tags: OTF
+  tasks:
+  - name: directories
+    file: path=/opt/qgis-server/plugins
+      recurse=yes
+      state=directory
+
+  - name: git clone
+    git:
+      clone=yes
+      dest=/opt/qgis-server/plugins/otf-project
+      repo=https://github.com/kartoza/otf-project.git
+      version=0a44fa4ccc40a5645af7d4349c63b9bb2f995595
+
+
 # <add-experssions-of-choice>
 # https://docs.ansible.com/ansible/become.html#becoming-an-unprivileged-user
 # the following will only work with pipelining as per ansible.cfg
