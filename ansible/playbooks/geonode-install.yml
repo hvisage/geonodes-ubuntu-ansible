@@ -29,6 +29,7 @@
       - python-virtualenv
       - apache2
       - libapache2-mod-wsgi
+      - libapache2-mod-fcgid
       - qgis-server
       - python-qgis
       - postgresql-9.5
@@ -51,6 +52,7 @@
       - python-pastescript
       - python-psycopg2
       - python-urlgrabber
+
 
 - hosts: all
   become: yes
