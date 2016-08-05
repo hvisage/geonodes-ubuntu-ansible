@@ -80,3 +80,15 @@
     postgresql_db: name=geonode
       state=present
       owner=geonode
+  - name: fix local logins from unix to md5
+    #This is much VooDoo... much like radio waves and DX propagation
+    lineinfile:
+      state=present
+      dest=/etc/postgresql/9.5/main/pg_hba.conf
+      backrefs=yes
+      regexp=(#*.*local.*all.*all.*)peer
+      line='\1 md5'
+      backup=yes
+  # - name: restart postgresql
+  #   services:
+  #
