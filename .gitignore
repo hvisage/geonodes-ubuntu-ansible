@@ -1,6 +1,6 @@
 vagrant-p/.vagrant
 vagrant/.vagrant
-first-prep.retry
+*.retry
 geonode-install.retry
 ubuntu-xenial-16.04-cloudimg-console.log
 .idea
