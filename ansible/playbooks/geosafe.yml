@@ -1,0 +1,133 @@
+---
+#Below grabbed from https://groups.google.com/forum/#!topic/ansible-project/R4Ho-oqJf3o
+# and then modified accordingly
+- hosts: geosafe
+  become: yes
+  vars:
+    redis_version: stable
+
+  tasks:
+    - name: packages to install
+      apt: name={{item}} state=latest update_cache=yes
+      with_items:
+        - tcl
+        - build-essential
+        - apache2
+        - xvfb
+
+    - name: Download Redis
+      get_url: url=http://download.redis.io/releases/redis-{{redis_version}}.tar.gz dest=/tmp
+      register: get_url_result
+
+    - name: Untar Redis
+      command: chdir=/tmp creates=redis-{{redis_version}} tar -xzf redis-{{redis_version}}.tar.gz
+      when: get_url_result.changed
+
+    - name: Install Redis
+      command: creates=/usr/local/bin/redis-server chdir=/tmp/redis-{{redis_version}} make install
+      when: get_url_result.changed
+
+    - name: testing it
+      command: chdir=/tmp/redis-{{redis_version}} make test
+      when: get_url_result.changed
+
+    - name: Create user redis
+      user: name=redis system=yes home=/var/lib/redis shell=/bin/false
+
+    - name: /var/lib/redis
+      file:
+        path=/var/lib/redis
+        owner=redis group=redis
+        state=directory recurse=yes
+        mode=0770
+
+    - name: /etc/redis
+      file:
+        path=/etc/redis
+        state=directory
+
+    - name: cp /tmp/redis-stable/redis.conf /etc/redis
+      command: cp /tmp/redis-stable/redis.conf /etc/redis
+      when: get_url_result.changed
+
+    - name: supervised
+      lineinfile:
+        dest=/etc/redis/redis.conf
+        regexp='^supervised'
+        line='supervised systemd'
+
+    - name: dir
+      lineinfile:
+        dest=/etc/redis/redis.conf
+        regexp='^dir'
+        line='dir /var/lib/redis'
+
+
+    - name: Configure Systemd for Redis
+      copy: src=../files/redis.service dest=/etc/systemd/system/redis.service
+      notify: Restart Redis
+
+    - name: Start Redis
+      service: name=redis state=started enabled=yes
+
+    - name: pinging redis
+      command: redis-cli ping
+
+    - name: pythong-redis
+      pip:
+        name=redis
+
+    - name: deploy dir geosafe part
+      file:
+        path=/var/www/html/geosafe
+        state=directory
+        group=www-data
+        mode=g+rx
+
+    - name: Deploy outputdir
+      file:
+        path=/var/www/html/geosafe/inasafe-headless
+        state=directory
+        group=www-data
+        mode=g+rx
+        recurse=yes
+
+    - name: ansible/files/staging2.inasafe-headless.kartoza.com.conf
+      copy:
+        src=../files/staging2.inasafe-headless.kartoza.com.conf
+        dest=/etc/apache2/sites-enabled/staging2.inasafe-headless.kartoza.com.conf
+
+    - name: inasafe.git
+      git:
+        depth=1
+        clone=yes
+        repo=https://github.com/lucernae/inasafe.git
+        # repo=https://github.com/inasafe/inasafe.git
+
+####
+#
+# Missing CELERY stuff from wiki doc
+#
+###
+
+  - name: pip Redis
+    pip:
+      name=Redis
+
+####
+#
+# missing the needed to find/start that xfvb as I don't see/know where to get run-env-linux.sh
+#
+####
+
+
+    - name: GeoSAFE gits
+      git:
+        depth=1
+        clone=yes
+        repo=https://github.com/kartoza/geosafe.git
+        branch=develop
+
+  handlers:
+    - name: Restart Redis
+      service: name=redis state=restarted

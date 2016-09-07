@@ -1,6 +1,9 @@
 [all:children]
-v-vm
+geonode
+geosafe
 
-[v-vm]
+[geonode]
 ubuntu-1604-geonode ansible_host=10.1.3.48 ansible_user=hvisage
 
+[geosafe]
+ubuntu-1604-geosafe ansible_host=10.1.3.52 ansible_user=hvisage
