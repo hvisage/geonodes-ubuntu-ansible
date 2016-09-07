@@ -15,15 +15,21 @@
   - name: apt keys id for QGIS apt repo
     apt_key: id=3FF5FFCAD71472C4 keyserver=keyserver.ubuntu.com state=present
 
+  - name: apt keys id for QGIS apt repo
+    apt_key: id=073D307A618E5811 keyserver=keyserver.ubuntu.com state=present
+
   - name: The APT repositories
     apt_repository: repo={{item}} state=present update_cache=yes
     with_items:
       - 'ppa:nginx/stable'
       - 'deb http://apt.postgresql.org/pub/repos/apt/ xenial-pgdg main'
       - 'deb http://qgis.org/debian xenial main'
+  #
+  # - name: do apt-get update_cache
+  #   apt: upgrade=dist update_cache=yes
 
   - name: packages to install
-    apt: name={{item}} state=present update_cache=yes
+    apt: name={{item}} state=latest update_cache=yes
     with_items:
       - git
       - python-pip
@@ -129,8 +135,9 @@
     git:
       clone=yes
       dest=/home/data/geonode
-      repo=https://github.com/kartoza/geonode.git
-      version=qgis_server
+      depth=1
+      repo=https://github.com/geonode/geonode.git
+      # version=qgis_server
 
 #HEre we still need to do some virtualenv stuff...
 
@@ -147,5 +154,91 @@
       virtualenv_site_packages=yes
       state=present
 
+#I Honestly don't like this hackering:
+  - name: pip install -e .
+    shell: /home/data/venv/bin/pip install -e /home/data/geonode
+    # pip:
+    #   virtualenv=/home/data/venv
+    #   chdir=/home/data/geonode
+    #   extra_args="-e ."
+    #
+  - name: pip install https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
+    # shell: /home/data/venv/bin/pip install https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
+    pip:
+      virtualenv=/home/data/env
+      chdir=/home/data/geonode
+      name=https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
 #Don't have any idea yet to run the rest in that environment,
 # other than to create a script to do it, and push that up
+
+  - name: python manage.py migrate base
+    command: /home/data/venv/bin/python manage.py migrate base chdir=/home/data/geonode
+    ignore_errors: yes
+
+  - name: python manage.py migrate layers
+    command: /home/data/venv/bin/python manage.py migrate layers chdir=/home/data/geonode
+    ignore_errors: yes
+
+  - name: python manage.py syncdb
+    command: /home/data/venv/bin/python manage.py syncdb chdir=/home/data/geonode
+
+  - name: python manage.py createsuperuser
+    command: /home/data/venv/bin/python manage.py createsuperuser chdir=/home/data/geonode
+
+  - name: python manage.py collectstatic
+    command: /home/data/venv/bin/python manage.py  collectstatic --noinput chdir=/home/data/geonode
+
+  - name: cp local_settings.py.qgis.sample local_settings.py
+    command: cp local_settings.py.qgis.sample local_settings.py chdir=/home/data/geonode/geonode
+
+  - name: TIME_ZONE = 'America/Chicago'
+    lineinfile:
+      dest=/home/data/geonode/geonode/local_settings.py
+      regexp='^TIME_ZONE'
+      line='TIME_ZONE=\'Africa/Johannesburg\''
+  - name: siteurl
+    lineinfile:
+      dest=/home/data/geonode/geonode/local_settings.py
+      regexp="^SITEURL"
+      line='SITEURL = \'http://localhost:8000\''
+
+  - name: /home/data/geonode/geonode/qgis_layer
+    file:
+      dest=/home/data/geonode/geonode/qgis_layer
+      state=directory
+      owner=www-data
+      recurse=yes
+
+
+  - name: /home/data/geonode/geonode/qgis_tiles
+    file:
+      dest=/home/data/geonode/geonode/qgis_tiles
+      state=directory
+      owner=www-data
+      recurse=yes
+
+
+  - name: /home/data/geonode/geonode/uploaded
+    file:
+      dest=/home/data/geonode/geonode/uploaded
+      state=directory
+      owner=www-data
+      recurse=yes
+
+  - name: 000-default.config
+    template:
+      dest=/etc/apache2/sites-available/000-default.conf
+      mode=0644
+      src=000-default.tmpl
+
+  - name: a2dissite 001-qgis-server
+    command: a2dissite 001-qgis-server
+
+  - name: a2ensite 000-default
+    command: a2ensite 000-default
+
+  - name: service apache2 reload
+    service:
+      name=apache2
+      state=reloaded
+      enabled=yes
