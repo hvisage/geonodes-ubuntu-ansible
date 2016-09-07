@@ -20,9 +20,9 @@
            </Files>
         </Directory>
 
-        WSGIDaemonProcess geonode-wsgi python-home=/home/etienne/venv python-path=/home/etienne/geonode
+        WSGIDaemonProcess geonode-wsgi python-home=/home/data/venv python-path=/home/data/geonode
         WSGIProcessGroup geonode-wsgi
-        WSGIScriptAlias / /home/etienne/geonode/geonode/wsgi.py
+        WSGIScriptAlias / /home/data/geonode/geonode/wsgi.py
 
         # ErrorLog ${APACHE_LOG_DIR}/qgis-server-error.log
         # CustomLog ${APACHE_LOG_DIR}/qgis-server-access.log combined

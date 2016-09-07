@@ -79,7 +79,7 @@
       recurse=yes
       state=directory
 
-  - name: git clone
+  - name: git clone OTF-Project
     git:
       clone=yes
       dest=/opt/qgis-server/plugins/otf-project
@@ -117,10 +117,12 @@
       regexp=(#*.*local.*all.*all.*)peer
       line='\1 md5'
       backup=yes
-  # - name: restart postgresql
-  #   services:
-  #
-
+  - name: service postgresql reload
+    become_user: root
+    service:
+      name=postgresql
+      state=reloaded
+      enabled=yes
 
 
 - hosts: geonode
@@ -136,8 +138,9 @@
       clone=yes
       dest=/home/data/geonode
       depth=1
-      repo=https://github.com/geonode/geonode.git
-      # version=qgis_server
+      repo=https://github.com/kartoza/geonode.git
+      version=fix_qgis_log
+      # repo=https://github.com/geonode/geonode.git
 
 #HEre we still need to do some virtualenv stuff...
 
@@ -165,7 +168,7 @@
   - name: pip install https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
     # shell: /home/data/venv/bin/pip install https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
     pip:
-      virtualenv=/home/data/env
+      virtualenv=/home/data/venv
       chdir=/home/data/geonode
       name=https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
 #Don't have any idea yet to run the rest in that environment,
@@ -182,8 +185,9 @@
   - name: python manage.py syncdb
     command: /home/data/venv/bin/python manage.py syncdb chdir=/home/data/geonode
 
-  - name: python manage.py createsuperuser
-    command: /home/data/venv/bin/python manage.py createsuperuser chdir=/home/data/geonode
+  #- name: python manage.py createsuperuser
+  #  # command: /home/data/venv/bin/python manage.py createsuperuser chdir=/home/data/geonode
+  #  command: echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | /home/data/venv/bin/python manage.py shell
 
   - name: python manage.py collectstatic
     command: /home/data/venv/bin/python manage.py  collectstatic --noinput chdir=/home/data/geonode
@@ -200,7 +204,21 @@
     lineinfile:
       dest=/home/data/geonode/geonode/local_settings.py
       regexp="^SITEURL"
-      line='SITEURL = \'http://localhost:8000\''
+      line='SITEURL = \'http://localhost\''
+
+  - name: Enable QGIS Server
+    tags: enable
+    lineinfile:
+      dest=/home/data/geonode/geonode/settings.py
+      regexp="^    \# \'geonode_qgis_server\',"
+      line='    \'geonode_qgis_server\','
+
+  - name: Disable Geoserver
+    tags: enable
+    lineinfile:
+      dest=/home/data/geonode/geonode/settings.py
+      regexp="^    \'geonode.geoserver\',"
+      line='    {{ '#' }} \'geonode.geoserver\','
 
   - name: /home/data/geonode/geonode/qgis_layer
     file:
@@ -227,13 +245,9 @@
 
   - name: 000-default.config
     template:
-      dest=/etc/apache2/sites-available/000-default
+      dest=/etc/apache2/sites-available/000-default.conf
       mode=0644
       src=../files/000-default.tmpl
-
-  - name: a2dissite 001-qgis-server
-    command: a2dissite 001-qgis-server
-    ignore_errors: yes
 
   - name: a2ensite 000-default
     command: a2ensite 000-default
