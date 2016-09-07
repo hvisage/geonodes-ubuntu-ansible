@@ -227,12 +227,13 @@
 
   - name: 000-default.config
     template:
-      dest=/etc/apache2/sites-available/000-default.conf
+      dest=/etc/apache2/sites-available/000-default
       mode=0644
-      src=000-default.tmpl
+      src=../files/000-default.tmpl
 
   - name: a2dissite 001-qgis-server
     command: a2dissite 001-qgis-server
+    ignore_errors: yes
 
   - name: a2ensite 000-default
     command: a2ensite 000-default
