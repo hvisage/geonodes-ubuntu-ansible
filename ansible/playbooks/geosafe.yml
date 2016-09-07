@@ -14,6 +14,8 @@
         - build-essential
         - apache2
         - xvfb
+        - python-pip
+        - git
 
     - name: Download Redis
       get_url: url=http://download.redis.io/releases/redis-{{redis_version}}.tar.gz dest=/tmp
@@ -97,10 +99,16 @@
         src=../files/staging2.inasafe-headless.kartoza.com.conf
         dest=/etc/apache2/sites-enabled/staging2.inasafe-headless.kartoza.com.conf
 
+    - name: /home/geosafe
+      file:
+        path=/home/geosafe/inasafe
+        state=directory
+
     - name: inasafe.git
       git:
         depth=1
         clone=yes
+        dest=/home/geosafe/inasafe
         repo=https://github.com/lucernae/inasafe.git
         # repo=https://github.com/inasafe/inasafe.git
 
@@ -110,9 +118,9 @@
 #
 ###
 
-  - name: pip Redis
-    pip:
-      name=Redis
+    - name: pip Redis
+      pip:
+        name=Redis
 
 ####
 #
@@ -126,7 +134,8 @@
         depth=1
         clone=yes
         repo=https://github.com/kartoza/geosafe.git
-        branch=develop
+        version=develop
+        dest=/home/geosafe/geosafe
 
   handlers:
     - name: Restart Redis
