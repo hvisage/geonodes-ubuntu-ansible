@@ -180,7 +180,7 @@
 
 #I Honestly don't like this hackering:
   - name: pip install -e .
-    shell: {{VIRTAULENV_HOME}}/bin/pip install -e {{ GEONODE_APPHOME }}
+    shell: "{{VIRTAULENV_HOME}}/bin/pip install -e {{ GEONODE_APPHOME }}"
     # pip:
     #   virtualenv={{VIRTAULENV_HOME}}
     #   chdir={{ GEONODE_APPHOME }}
@@ -196,7 +196,7 @@
 # other than to create a script to do it, and push that up
 
   - name: python manage.py migrate base
-    command: {{VIRTAULENV_HOME}}/bin/python manage.py migrate base chdir={{ GEONODE_APPHOME }}
+    command: "{{VIRTAULENV_HOME}}/bin/python manage.py {{item}} chdir={{ GEONODE_APPHOME }}"
     ignore_errors: yes
 
   - name: python manage.py migrate layers
@@ -241,7 +241,7 @@
       regexp="^    \'geonode.geoserver\',"
       line='    {{ '#' }} \'geonode.geoserver\','
 
-  - name: {{ GEONODE_APPHOME }}/geonode/qgis_layer
+  - name: "{{ GEONODE_APPHOME }}/geonode/qgis_layer"
     file:
       dest={{ GEONODE_APPHOME }}/geonode/qgis_layer
       state=directory
@@ -249,7 +249,7 @@
       recurse=yes
 
 
-  - name: {{ GEONODE_APPHOME }}/geonode/qgis_tiles
+  - name: "{{ GEONODE_APPHOME }}/geonode/qgis_tiles"
     file:
       dest={{ GEONODE_APPHOME }}/geonode/qgis_tiles
       state=directory
@@ -257,7 +257,7 @@
       recurse=yes
 
 
-  - name: {{ GEONODE_APPHOME }}/geonode/uploaded
+  - name: "{{ GEONODE_APPHOME }}/geonode/uploaded"
     file:
       dest={{ GEONODE_APPHOME }}/geonode/uploaded
       state=directory

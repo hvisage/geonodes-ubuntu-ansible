@@ -15,7 +15,7 @@
   name: user setup
   roles:
   - role: systemuser
-    user: {{ systemuser_to_manage }}
+    user: "{{ systemuser_to_manage }}"
 
 
 
