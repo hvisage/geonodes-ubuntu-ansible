@@ -24,13 +24,6 @@
   become: true
   name:  apps
   tasks:
-  - name: hendrik's internal cache setup
-    lineinfile:
-      dest=/etc/apt/apt.conf.d/hvsproxy.conf
-      line='Acquire::http::Proxy "http://10.1.1.1:3142/";'
-      create=yes state=present
-      # regexp='Acquire::http:'
-
   - name: remove cdrom repositories
     lineinfile:
       dest=/etc/apt/sources.list
