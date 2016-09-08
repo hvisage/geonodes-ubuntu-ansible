@@ -225,7 +225,7 @@
     lineinfile:
       dest={{ GEONODE_APPHOME }}/geonode/local_settings.py
       regexp="^SITEURL"
-      line='SITEURL = \'http://localhost\''
+      line='SITEURL = \'{{SITE_URL}}\''
 
   - name: Enable QGIS Server
     tags: enable
