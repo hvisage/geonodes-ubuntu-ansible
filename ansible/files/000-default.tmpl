@@ -9,20 +9,20 @@
         ErrorLog ${APACHE_LOG_DIR}/error.log
         CustomLog ${APACHE_LOG_DIR}/access.log combined
 
-        Alias /static /home/data/geonode/geonode/static_root/
-        <Directory /home/data/geonode/geonode/static_root>
+        Alias /static {{ GEONODE_APPHOME }}/geonode/static_root/
+        <Directory {{ GEONODE_APPHOME }}/geonode/static_root>
            Require all granted
         </Directory>
 
-        <Directory /home/data/geonode/geonode>
+        <Directory {{ GEONODE_APPHOME }}/geonode>
            <Files wsgi.py>
                Require all granted
            </Files>
         </Directory>
 
-        WSGIDaemonProcess geonode-wsgi python-home=/home/data/venv python-path=/home/data/geonode
+        WSGIDaemonProcess geonode-wsgi python-home={{VIRTAULENV_HOME}} python-path={{ GEONODE_APPHOME }}
         WSGIProcessGroup geonode-wsgi
-        WSGIScriptAlias / /home/data/geonode/geonode/wsgi.py
+        WSGIScriptAlias / {{ GEONODE_APPHOME }}/geonode/wsgi.py
 
         # ErrorLog ${APACHE_LOG_DIR}/qgis-server-error.log
         # CustomLog ${APACHE_LOG_DIR}/qgis-server-access.log combined

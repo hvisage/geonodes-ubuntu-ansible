@@ -7,6 +7,20 @@
   - name: needed for apt
     shell: apt-get install python-apt
 
+  - name: geonode group
+    group: state=present name={{GEONODE_GROUP}}
+
+  - name: User for geonode
+    user: state=present
+      name={{GEONODE_USER}}
+      createhome=yes
+      home={{GEONODE_HOME}}
+      shell=/dev/false
+
+
+
+
+
   - name: apt keys for postgresql apt repo
     apt_key: url={{item}} state=present
     with_items:
@@ -136,7 +150,7 @@
   - name: git pull geonode
     git:
       clone=yes
-      dest=/home/data/geonode
+      dest={{ GEONODE_APPHOME }}
       depth=1
       repo=https://github.com/kartoza/geonode.git
       version=fix_qgis_log
@@ -152,93 +166,93 @@
   - name: create virtualev setup
     pip:
       name=pip version=8.1.1
-      chdir=/home/data
-      virtualenv=/home/data/venv
+      chdir={{GEONODE_HOME}}
+      virtualenv={{VIRTAULENV_HOME}}
       virtualenv_site_packages=yes
       state=present
 
 #I Honestly don't like this hackering:
   - name: pip install -e .
-    shell: /home/data/venv/bin/pip install -e /home/data/geonode
+    shell: {{VIRTAULENV_HOME}}/bin/pip install -e {{ GEONODE_APPHOME }}
     # pip:
-    #   virtualenv=/home/data/venv
-    #   chdir=/home/data/geonode
+    #   virtualenv={{VIRTAULENV_HOME}}
+    #   chdir={{ GEONODE_APPHOME }}
     #   extra_args="-e ."
     #
   - name: pip install https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
-    # shell: /home/data/venv/bin/pip install https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
+    # shell: {{VIRTAULENV_HOME}}/bin/pip install https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
     pip:
-      virtualenv=/home/data/venv
-      chdir=/home/data/geonode
+      virtualenv={{VIRTAULENV_HOME}}
+      chdir={{ GEONODE_APPHOME }}
       name=https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
 #Don't have any idea yet to run the rest in that environment,
 # other than to create a script to do it, and push that up
 
   - name: python manage.py migrate base
-    command: /home/data/venv/bin/python manage.py migrate base chdir=/home/data/geonode
+    command: {{VIRTAULENV_HOME}}/bin/python manage.py migrate base chdir={{ GEONODE_APPHOME }}
     ignore_errors: yes
 
   - name: python manage.py migrate layers
-    command: /home/data/venv/bin/python manage.py migrate layers chdir=/home/data/geonode
+    command: {{VIRTAULENV_HOME}}/bin/python manage.py migrate layers chdir={{ GEONODE_APPHOME }}
     ignore_errors: yes
 
   - name: python manage.py syncdb
-    command: /home/data/venv/bin/python manage.py syncdb chdir=/home/data/geonode
+    command: {{VIRTAULENV_HOME}}/bin/python manage.py syncdb chdir={{ GEONODE_APPHOME }}
 
   #- name: python manage.py createsuperuser
-  #  # command: /home/data/venv/bin/python manage.py createsuperuser chdir=/home/data/geonode
-  #  command: echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | /home/data/venv/bin/python manage.py shell
+  #  # command: {{VIRTAULENV_HOME}}/bin/python manage.py createsuperuser chdir={{ GEONODE_APPHOME }}
+  #  command: echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | {{VIRTAULENV_HOME}}/bin/python manage.py shell
 
   - name: python manage.py collectstatic
-    command: /home/data/venv/bin/python manage.py  collectstatic --noinput chdir=/home/data/geonode
+    command: {{VIRTAULENV_HOME}}/bin/python manage.py  collectstatic --noinput chdir={{ GEONODE_APPHOME }}
 
   - name: cp local_settings.py.qgis.sample local_settings.py
-    command: cp local_settings.py.qgis.sample local_settings.py chdir=/home/data/geonode/geonode
+    command: cp local_settings.py.qgis.sample local_settings.py chdir={{ GEONODE_APPHOME }}/geonode
 
   - name: TIME_ZONE = 'America/Chicago'
     lineinfile:
-      dest=/home/data/geonode/geonode/local_settings.py
+      dest={{ GEONODE_APPHOME }}/geonode/local_settings.py
       regexp='^TIME_ZONE'
       line='TIME_ZONE=\'Africa/Johannesburg\''
   - name: siteurl
     lineinfile:
-      dest=/home/data/geonode/geonode/local_settings.py
+      dest={{ GEONODE_APPHOME }}/geonode/local_settings.py
       regexp="^SITEURL"
       line='SITEURL = \'http://localhost\''
 
   - name: Enable QGIS Server
     tags: enable
     lineinfile:
-      dest=/home/data/geonode/geonode/settings.py
+      dest={{ GEONODE_APPHOME }}/geonode/settings.py
       regexp="^    \# \'geonode_qgis_server\',"
       line='    \'geonode_qgis_server\','
 
   - name: Disable Geoserver
     tags: enable
     lineinfile:
-      dest=/home/data/geonode/geonode/settings.py
+      dest={{ GEONODE_APPHOME }}/geonode/settings.py
       regexp="^    \'geonode.geoserver\',"
       line='    {{ '#' }} \'geonode.geoserver\','
 
-  - name: /home/data/geonode/geonode/qgis_layer
+  - name: {{ GEONODE_APPHOME }}/geonode/qgis_layer
     file:
-      dest=/home/data/geonode/geonode/qgis_layer
+      dest={{ GEONODE_APPHOME }}/geonode/qgis_layer
       state=directory
       owner=www-data
       recurse=yes
 
 
-  - name: /home/data/geonode/geonode/qgis_tiles
+  - name: {{ GEONODE_APPHOME }}/geonode/qgis_tiles
     file:
-      dest=/home/data/geonode/geonode/qgis_tiles
+      dest={{ GEONODE_APPHOME }}/geonode/qgis_tiles
       state=directory
       owner=www-data
       recurse=yes
 
 
-  - name: /home/data/geonode/geonode/uploaded
+  - name: {{ GEONODE_APPHOME }}/geonode/uploaded
     file:
-      dest=/home/data/geonode/geonode/uploaded
+      dest={{ GEONODE_APPHOME }}/geonode/uploaded
       state=directory
       owner=www-data
       recurse=yes
