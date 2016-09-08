@@ -198,20 +198,25 @@
   - name: python manage.py migrate base
     command: "{{VIRTAULENV_HOME}}/bin/python manage.py {{item}} chdir={{ GEONODE_APPHOME }}"
     ignore_errors: yes
+    with_items:
+      - "migrate base"
+      - "migrate layers"
+      - "syncdb"
+      - "collectstatic --noinput"
 
-  - name: python manage.py migrate layers
-    command: {{VIRTAULENV_HOME}}/bin/python manage.py migrate layers chdir={{ GEONODE_APPHOME }}
-    ignore_errors: yes
-
-  - name: python manage.py syncdb
-    command: {{VIRTAULENV_HOME}}/bin/python manage.py syncdb chdir={{ GEONODE_APPHOME }}
-
-  #- name: python manage.py createsuperuser
-  #  # command: {{VIRTAULENV_HOME}}/bin/python manage.py createsuperuser chdir={{ GEONODE_APPHOME }}
-  #  command: echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | {{VIRTAULENV_HOME}}/bin/python manage.py shell
-
-  - name: python manage.py collectstatic
-    command: {{VIRTAULENV_HOME}}/bin/python manage.py  collectstatic --noinput chdir={{ GEONODE_APPHOME }}
+  # - name: python manage.py migrate layers
+  #   command: {{VIRTAULENV_HOME}}/bin/python manage.py migrate layers chdir={{ GEONODE_APPHOME }}
+  #   ignore_errors: yes
+  #
+  # - name: python manage.py syncdb
+  #   command: {{VIRTAULENV_HOME}}/bin/python manage.py syncdb chdir={{ GEONODE_APPHOME }}
+  #
+  # #- name: python manage.py createsuperuser
+  # #  # command: {{VIRTAULENV_HOME}}/bin/python manage.py createsuperuser chdir={{ GEONODE_APPHOME }}
+  # #  command: echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | {{VIRTAULENV_HOME}}/bin/python manage.py shell
+  #
+  # - name: python manage.py collectstatic
+  #   command: {{VIRTAULENV_HOME}}/bin/python manage.py  collectstatic --noinput chdir={{ GEONODE_APPHOME }}
 
   - name: cp local_settings.py.qgis.sample local_settings.py
     command: cp local_settings.py.qgis.sample local_settings.py chdir={{ GEONODE_APPHOME }}/geonode
