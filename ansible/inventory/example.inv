@@ -1,3 +1,6 @@
+[all:vars]#This user's public key needs to by in anisble/files/pub_keys/<username>.pub
+systemuser_to_manage=demo-user
+
 [all:children]
 geonode
 geosafe
