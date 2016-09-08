@@ -1,3 +1,10 @@
+#####
+#
+# This is based on a current -stable installation compiled from source.
+# Needed to rethink when you are happy with the system supplied Redis
+#
+#####
+
 [Unit]
 Description=Redis In-Memory Data Store
 After=network.target

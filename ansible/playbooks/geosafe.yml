@@ -34,11 +34,11 @@
       when: get_url_result.changed
 
     - name: Create user redis
-      user: name=redis system=yes home=/var/lib/redis shell=/bin/false
+      user: name=redis system=yes home={{REDISHOME}} shell=/bin/false
 
-    - name: /var/lib/redis
+    - name: {{REDISHOME}}
       file:
-        path=/var/lib/redis
+        path={{REDISHOME}}
         owner=redis group=redis
         state=directory recurse=yes
         mode=0770
@@ -62,7 +62,7 @@
       lineinfile:
         dest=/etc/redis/redis.conf
         regexp='^dir'
-        line='dir /var/lib/redis'
+        line='dir {{REDISHOME}}'
 
 
     - name: Configure Systemd for Redis
