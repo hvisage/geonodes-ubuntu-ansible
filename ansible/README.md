@@ -12,6 +12,10 @@ The order of execution for geonode and geosafe:
 - ansible-playbook  -i inventory/hvvagrant.inv playbooks/geosafe.yml -vvvv
 
 
+The __<user>__ above is the "default" user that was created at the
+installation of the destination server. The advice is to use a `ubuntu` or `debian` user, as the rest of the playbooks will remove those two users.
+
+
 ### Still to do ###
 
 - the user needs to have his/her pub keys installed/setup for the auto ssh logins the 2nd stage
