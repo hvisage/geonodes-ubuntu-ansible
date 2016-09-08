@@ -1,0 +1,19 @@
+
+#This user's public key needs to by in anisble/files/pub_keys/<username>.pub
+systemuser_to_manage: demo-user
+
+HOST_URL: qgis.ourtest.site
+SITE_URL: http://localhost
+
+GEONODE_USER: geonode
+GEONODE_GROUP: geonode
+GEONODE_HOME: /home/data
+GEONODE_APPHOME: {{GEONODE_HOME}}/geonode
+
+VIRTAULENV_HOME: {{GEONODE_HOME}}/venv
+
+TIME_ZONE: Africa/Johannesburg
+
+#GEOSAFE related:
+
+REDISHOME: /var/lib/redis
