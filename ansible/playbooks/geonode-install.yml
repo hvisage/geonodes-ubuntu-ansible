@@ -7,6 +7,12 @@
   - name: needed for apt
     shell: apt-get install python-apt
 
+  - name: removing initial users not needed from here on
+    user: state=absent name={{item}}
+    with_items:
+      - debian
+      - ubuntu
+
   - name: geonode group
     group: state=present name={{GEONODE_GROUP}}
 
