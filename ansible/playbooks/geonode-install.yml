@@ -220,7 +220,7 @@
     lineinfile:
       dest={{ GEONODE_APPHOME }}/geonode/local_settings.py
       regexp='^TIME_ZONE'
-      line='TIME_ZONE=\'Africa/Johannesburg\''
+      line='TIME_ZONE=\'{{TIME_ZONE}}\''
   - name: siteurl
     lineinfile:
       dest={{ GEONODE_APPHOME }}/geonode/local_settings.py
