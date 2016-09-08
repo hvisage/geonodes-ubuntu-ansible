@@ -27,10 +27,11 @@
       - https://www.postgresql.org/media/keys/ACCC4CF8.asc
 
   - name: apt keys id for QGIS apt repo
-    apt_key: id=3FF5FFCAD71472C4 keyserver=keyserver.ubuntu.com state=present
+    apt_key: id={{item}} keyserver=keyserver.ubuntu.com state=present
+    with_items:
+      - 3FF5FFCAD71472C4
+      - 073D307A618E5811
 
-  - name: apt keys id for QGIS apt repo
-    apt_key: id=073D307A618E5811 keyserver=keyserver.ubuntu.com state=present
 
   - name: The APT repositories
     apt_repository: repo={{item}} state=present update_cache=yes
