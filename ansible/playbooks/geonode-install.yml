@@ -23,10 +23,6 @@
       home={{GEONODE_HOME}}
       shell=/dev/false
 
-
-
-
-
   - name: apt keys for postgresql apt repo
     apt_key: url={{item}} state=present
     with_items:
@@ -88,8 +84,6 @@
   roles:
   - role: apache-fcgi
 
-
-
 - hosts: geonode
   name: OTF plugins
   become: yes
@@ -106,8 +100,6 @@
       dest=/opt/qgis-server/plugins/otf-project
       repo=https://github.com/kartoza/otf-project.git
       version=0a44fa4ccc40a5645af7d4349c63b9bb2f995595
-#Here we need to still do some configs to test, or do we?
-
 
 # <add-experssions-of-choice>
 # https://docs.ansible.com/ansible/become.html#becoming-an-unprivileged-user
@@ -159,11 +151,7 @@
       clone=yes
       dest={{ GEONODE_APPHOME }}
       depth=1
-      repo=https://github.com/kartoza/geonode.git
-      version=fix_qgis_log
-      # repo=https://github.com/geonode/geonode.git
-
-#HEre we still need to do some virtualenv stuff...
+      repo=https://github.com/geonode/geonode.git
 
 - hosts: geonode
   name: geonode virtualenv
@@ -178,7 +166,6 @@
       virtualenv_site_packages=yes
       state=present
 
-#I Honestly don't like this hackering:
   - name: pip install -e .
     shell: "{{VIRTAULENV_HOME}}/bin/pip install -e {{ GEONODE_APPHOME }}"
     # pip:
@@ -192,8 +179,6 @@
       virtualenv={{VIRTAULENV_HOME}}
       chdir={{ GEONODE_APPHOME }}
       name=https://github.com/kartoza/geonode_qgis_server/archive/develop.zip
-#Don't have any idea yet to run the rest in that environment,
-# other than to create a script to do it, and push that up
 
   - name: python manage.py migrate base
     command: "{{VIRTAULENV_HOME}}/bin/python manage.py {{item}} chdir={{ GEONODE_APPHOME }}"
